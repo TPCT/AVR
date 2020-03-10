@@ -1,0 +1,32 @@
+void LCD_2X16_Writer(char *Msg, char lcdWidth, char lcdHeight, int clearDelay, int Delay){
+  char *str, *token, lineStatus = 0, lcdRowCounter = 0;
+  const char *del = " ";
+  String lcdString = "", tempString = "";
+  token = strtok(Msg, del);
+  while(lcdString.length() || token){
+    if (token == NULL) goto jump;
+    tempString = String(token);
+    if ((lcdString.length() + tempString.length()) < lcdWidth){
+      lcdString = lcdString + " " + tempString ;
+    }else{
+      jump:
+      if (!lineStatus){
+        delay(clearDelay);
+        lcd.clear();
+        lcd.setCursor(0, lcdRowCounter++);
+        lcdString.trim();
+        lcd.print(lcdString);
+        lineStatus = 1;
+      }else{
+        lcd.setCursor(0, lcdRowCounter++);
+        lcdString.trim();
+        lcd.print(lcdString);
+        if (lcdRowCounter == lcdHeight) lcdRowCounter = 0, lineStatus = 0;
+      }
+      lcdString = tempString;
+      delay(Delay);
+      if (token == NULL) break;
+    }
+    token = strtok(NULL, del);
+  }
+}
